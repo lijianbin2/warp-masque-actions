@@ -79,7 +79,7 @@ jobs:
           cp dist/warp-masque-shadowrocket.txt configs/warp-masque-shadowrocket.txt || true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main || true
+          git pull --rebase --autostash origin main || true
           git add configs/warp-masque.yaml configs/warp-masque-shadowrocket.txt
           git diff --staged --quiet && { echo "内容无变化，跳过提交"; exit 0; }
           git commit -m "chore: weekly update warp-masque ($(date -u '+%F %T') UTC)"
@@ -92,3 +92,4 @@ jobs:
           path: dist/
           retention-days: ${{ github.event.inputs.retention_days || 7 }}
           if-no-files-found: error
+
