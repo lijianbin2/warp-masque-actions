@@ -21,7 +21,7 @@ jobs:
           set +e
           gh api --method POST /repos/lijianbin2/warp-masque-actions/merge-upstream -f branch=main > /tmp/out.json 2>&1
           CODE=$?
-          cat /tmp/out.json
+          cat /tmp/out.json; echo ""
           if [ $CODE -eq 0 ]; then
             echo "同步完成"
             exit 0
@@ -32,3 +32,4 @@ jobs:
           fi
           echo "同步失败 (code=$CODE)"
           exit $CODE
+
