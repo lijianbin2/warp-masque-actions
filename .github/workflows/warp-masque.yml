@@ -1,6 +1,8 @@
 name: 生成 WARP MASQUE 配置
 
 on:
+  schedule:
+    - cron: '0 2 * * 1'
   workflow_dispatch:
     inputs:
       device_name:
@@ -13,7 +15,7 @@ on:
         default: '7'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   generate:
@@ -31,7 +33,6 @@ jobs:
             "https://github.com/Diniboy1123/usque/releases/download/v${VER}/usque_${VER}_linux_amd64.zip"
           unzip -oq usque.zip
           chmod +x usque
-          # 没有 config.json 时 usque version 会先打一条 error，不影响结果
           ./usque version 2>/dev/null | grep -i version || true
 
       - name: 注册设备并生成密钥
@@ -39,7 +40,6 @@ jobs:
           set -euo pipefail
           ./usque register -a -n "${{ github.event.inputs.device_name || 'gh-actions' }}"
           test -s config.json
-          # 只打印非敏感字段，密钥不进日志
           python3 - <<'PY'
           import json
           c = json.load(open("config.json"))
@@ -61,7 +61,6 @@ jobs:
           chmod +x mihomo
           mkdir -p check
           cp dist/warp-masque.yaml check/config.yaml
-          # -t 只做配置解析校验，不起服务
           ./mihomo -t -d check
           echo "配置校验通过"
 
@@ -71,6 +70,20 @@ jobs:
           test -s dist/warp-masque.yaml
           test -s dist/warp-masque-shadowrocket.txt
           ls -l dist
+
+      - name: 提交回仓库（生成直链）
+        run: |
+          set -euo pipefail
+          mkdir -p configs
+          cp dist/warp-masque.yaml configs/warp-masque.yaml
+          cp dist/warp-masque-shadowrocket.txt configs/warp-masque-shadowrocket.txt || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git add configs/warp-masque.yaml configs/warp-masque-shadowrocket.txt
+          git diff --staged --quiet && { echo "内容无变化，跳过提交"; exit 0; }
+          git commit -m "chore: weekly update warp-masque ($(date -u '+%F %T') UTC)"
+          git push
 
       - name: 上传 artifact
         uses: actions/upload-artifact@v6
