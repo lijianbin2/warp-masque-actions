@@ -1,0 +1,34 @@
+name: 同步上游
+
+on:
+  schedule:
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge upstream
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          echo "Syncing byJoey/warp-masque-actions -> lijianbin2/warp-masque-actions (main)"
+          set +e
+          gh api --method POST /repos/lijianbin2/warp-masque-actions/merge-upstream -f branch=main > /tmp/out.json 2>&1
+          CODE=$?
+          cat /tmp/out.json
+          if [ $CODE -eq 0 ]; then
+            echo "同步完成"
+            exit 0
+          fi
+          if grep -qi "409\|already\|up.to.date\|no new commits" /tmp/out.json; then
+            echo "已是最新，无需同步"
+            exit 0
+          fi
+          echo "同步失败 (code=$CODE)"
+          exit $CODE
