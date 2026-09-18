@@ -1,0 +1,41 @@
+name: Sync Upstream
+
+# 定时同步上游 byJoey/warp-masque-actions -> 本 fork，保持每天自动跟进
+on:
+  schedule:
+    - cron: "0 19 * * *"  # 每天北京时间 03:00
+  workflow_dispatch:  # 允许手动点 Run workflow 立即同步
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge upstream/main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/byJoey/warp-masque-actions.git || true
+          git fetch upstream
+          git checkout main
+          # 已是最新则直接退出
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "Already up to date."
+            exit 0
+          fi
+          # 合并上游，worker/wrangler.toml 里的 KV id 是本 fork 自己的，冲突时保留 ours
+          if ! git merge upstream/main --no-edit -m "chore: sync upstream $(date -u +%F)"; then
+            echo "Conflict detected, keeping ours for worker/wrangler.toml"
+            git checkout --ours -- worker/wrangler.toml || true
+            git add -A
+            git commit -m "chore: sync upstream $(date -u +%F) (keep local wrangler.toml)" || true
+          fi
+          git push origin main
