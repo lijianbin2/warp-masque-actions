@@ -3,7 +3,7 @@ name: Sync Upstream
 # 定时同步上游 byJoey/warp-masque-actions -> 本 fork，保持每天自动跟进
 on:
   schedule:
-    - cron: "0 19 * * *"  # 每天北京时间 03:00
+    - cron: "0 2 * * *"  # 每天北京时间 10:00
   workflow_dispatch:  # 允许手动点 Run workflow 立即同步
 
 permissions:
