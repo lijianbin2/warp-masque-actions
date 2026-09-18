@@ -1,7 +1,8 @@
 name: Deploy Worker
 
 # worker/ 有变化（自己改的或每天10点同步上游带下来的）就自动部署到 Cloudflare Worker
-# 需要仓库 Secret: CLOUDFLARE_API_TOKEN（见下方注释建法）
+# 需要仓库 Secret: CLOUDFLARE_API_TOKEN（Cloudflare 后台 profile/api-tokens 建 custom token，
+# 权限 Workers Scripts Edit + Workers KV Storage Edit）
 on:
   push:
     branches: [main]
@@ -23,12 +24,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: worker/package-lock.json
+          node-version: 22
 
       - name: Install
-        run: npm ci
+        run: npm install
 
       - name: Test
         run: npm test
