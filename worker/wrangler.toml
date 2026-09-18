@@ -8,7 +8,7 @@ compatibility_flags = ["nodejs_compat"]
 #   npx wrangler kv namespace create KV
 [[kv_namespaces]]
 binding = "KV"
-id = "644ca4b4222940ac9fa7d0917ba0f2ee"
+id = "d8eaed1b6b92407a9438f24031d4c1fd"
 
 
 # Git 绑定(Workers Builds)验证 2026-09-18
