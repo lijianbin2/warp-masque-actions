@@ -1,4 +1,4 @@
-name = "opera-masque"
+name = "warp-masque-actions"
 main = "src/index.js"
 compatibility_date = "2026-09-01"
 # getSetCookie() 需要，缺了 Opera 的会话维持不住
@@ -8,7 +8,7 @@ compatibility_flags = ["nodejs_compat"]
 #   npx wrangler kv namespace create KV
 [[kv_namespaces]]
 binding = "KV"
-id = "a476f5bd81de407a8004ddedd0f49595"
+id = "644ca4b4222940ac9fa7d0917ba0f2ee"
 
 
 # Git 绑定(Workers Builds)验证 2026-09-18
